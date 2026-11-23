@@ -18,9 +18,14 @@ if uploaded_file:
 
     df = pd.read_csv(uploaded_file)
 
-    st.success(f"Loaded {len(df)} rows")
+    st.write("Columns found in CSV:")
+    st.write(df.columns.tolist())
+
+    st.write("First row:")
+    st.write(df.iloc[0])
 
     if st.button("Upload to Turso"):
+        st.success("Ready to upload"):
 
         uploaded = 0
 
