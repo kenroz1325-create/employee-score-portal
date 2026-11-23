@@ -543,7 +543,7 @@ def search_page():
 # 9. MAIN APP
 # =====================================================
 
-st.sidebar.success("Turso connected")
+st.sidebar.success("Database connected")
 
 page = st.sidebar.radio(
     "Navigation",
