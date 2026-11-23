@@ -6,8 +6,8 @@ st.set_page_config(page_title="Employee Score Portal")
 
 # Connect to Turso
 client = create_client_sync(
-    url=st.secrets["libsql://employee-portal-kennethrozon.aws-ap-southeast-1.turso.io"],
-    auth_token=st.secrets["eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTU0MzQzNTMsImlkIjoiMDFhMjA4MzEtOWYwMS03Njg0LWIzOWQtODA2NTBmN2M4OGIwIiwia2lkIjoiak9qbGgyZWU5ZEJ0d1dkSVRBOG9fZzF3VmhKazJnaTY4cHNnSTJLbXFaUSIsInJpZCI6IjA3YmFiMDFjLTQwOTAtNDlkNS1hOWJjLTM1MTA0MGE4MWI5OSJ9.2OJdyMIhKMCSWWWTJNgzdMUiwWdTKDeO04atMQR3TbKG5a3EA_swQSvsgK8lVajID3wK0_OyFE2mCxMBQLZTBA"]
+    url=st.secrets["TURSO_DATABASE_URL"],
+    auth_token=st.secrets["TURSO_AUTH_TOKEN"]
 )
 
 st.title("Employee Score Portal")
