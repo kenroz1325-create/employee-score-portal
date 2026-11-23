@@ -34,3 +34,22 @@ try:
 except Exception as e:
     st.error(f"Turso connection failed: {e}")
     st.stop()
+
+client.execute("""
+CREATE TABLE IF NOT EXISTS employees (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    month TEXT,
+    month_key INTEGER,
+    vertical TEXT,
+    employee_id TEXT NOT NULL,
+    power_unit TEXT,
+    position TEXT,
+    name TEXT NOT NULL,
+    supervisor TEXT,
+    qualified TEXT,
+    final_score TEXT,
+    accuracy TEXT
+)
+""")
+
+st.success("Employee database table is ready!")
