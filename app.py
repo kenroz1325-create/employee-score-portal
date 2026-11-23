@@ -41,7 +41,6 @@ def connect_db():
     database_url = st.secrets["TURSO_DATABASE_URL"]
     auth_token = st.secrets["TURSO_AUTH_TOKEN"]
 
-    # Use HTTPS transport, which is working in your app.
     if database_url.startswith("libsql://"):
         database_url = database_url.replace(
             "libsql://",
@@ -54,7 +53,6 @@ def connect_db():
         auth_token=auth_token
     )
 
-    # Verify the connection with an actual query.
     result = db.execute("SELECT 1")
 
     if result.rows[0][0] != 1:
@@ -66,7 +64,7 @@ def connect_db():
 try:
     client = connect_db()
 except Exception as e:
-    st.error(f"Turso connection failed: {e}")
+    st.error(f"Database connection failed: {e}")
     st.stop()
 
 
@@ -95,7 +93,6 @@ def get_active_table():
 
     table_name = result.rows[0][0]
 
-    # Only accept generated table identifiers.
     if (
         not table_name
         or not table_name.startswith("employee_data_")
@@ -112,35 +109,44 @@ def get_active_table():
 
 def normalize_month(value):
 
-    value = str(value).strip()
+    value = str(value).strip().lower()
 
-    if not value:
-        raise ValueError("A record has a blank Month value.")
+    month_order = {
+        "jan": ("Jan", 1),
+        "january": ("Jan", 1),
+        "feb": ("Feb", 2),
+        "february": ("Feb", 2),
+        "mar": ("March", 3),
+        "march": ("March", 3),
+        "apr": ("April", 4),
+        "april": ("April", 4),
+        "may": ("May", 5),
+        "jun": ("June", 6),
+        "june": ("June", 6),
+        "jul": ("July", 7),
+        "july": ("July", 7),
+        "aug": ("August", 8),
+        "august": ("August", 8),
+        "sep": ("September", 9),
+        "sept": ("September", 9),
+        "september": ("September", 9),
+        "oct": ("October", 10),
+        "october": ("October", 10),
+        "nov": ("November", 11),
+        "november": ("November", 11),
+        "dec": ("December", 12),
+        "december": ("December", 12)
+    }
 
-    parsed = pd.to_datetime(
-        value,
-        errors="coerce"
-    )
-
-    # Also support Excel date serial numbers.
-    if pd.isna(parsed) and value.isdigit():
-
-        parsed = pd.to_datetime(
-            float(value),
-            unit="D",
-            origin="1899-12-30",
-            errors="coerce"
-        )
-
-    if pd.isna(parsed):
+    if value not in month_order:
         raise ValueError(
-            f"Cannot interpret Month value: {value}"
+            f"Invalid Month value: {value}. "
+            "Expected Jan, Feb, March, etc."
         )
 
-    return (
-        parsed.strftime("%Y-%m"),
-        int(parsed.strftime("%Y%m"))
-    )
+    month_name, month_number = month_order[value]
+
+    return month_name, month_number
 
 
 def prepare_csv(uploaded_file):
@@ -258,7 +264,6 @@ def import_dataset(df):
         ))
 
     # Insert in batches.
-    # Each batch contains 50 rows x 11 columns.
     batch_size = 50
 
     for start in range(0, len(records), batch_size):
@@ -280,7 +285,7 @@ def import_dataset(df):
 
         client.execute(sql, parameters)
 
-    # Verify that every row was inserted.
+    # Verify imported records.
     count_result = client.execute(
         f"SELECT COUNT(*) FROM {table_name}"
     )
@@ -293,8 +298,7 @@ def import_dataset(df):
             f"Expected {len(records)}, found {imported_count}."
         )
 
-    # Publish the new dataset only after verification.
-    # This single statement changes which table is active.
+    # Activate the new dataset after verification.
     client.execute("""
         INSERT INTO portal_config (key, value)
         VALUES (?, ?)
@@ -542,8 +546,6 @@ def search_page():
 # =====================================================
 # 9. MAIN APP
 # =====================================================
-
-st.sidebar.success("Database connected")
 
 page = st.sidebar.radio(
     "Navigation",
