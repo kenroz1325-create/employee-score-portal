@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from libsql_client import create_client_sync
 
+# Connect to Turso
 client = create_client_sync(
     url=st.secrets["TURSO_DATABASE_URL"],
     auth_token=st.secrets["TURSO_AUTH_TOKEN"]
@@ -16,54 +17,13 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file:
 
+    # Read CSV
     df = pd.read_csv(uploaded_file)
 
-    st.write("Columns found in CSV:")
-    st.write(df.columns.tolist())
+    # Remove completely empty columns
+    df = df.dropna(axis=1, how="all")
 
-    st.write("First row:")
-    st.write(df.iloc[0])
+    # Clean column names
+    df.columns = df.columns.str.strip()
 
-    if st.button("Upload to Turso"):
-        st.success("Ready to upload")
-
-        uploaded = 0
-
-        for _, row in df.iterrows():
-
-            client.execute("""
-                INSERT INTO monthly_scores (
-                    month,
-                    vertical,
-                    employee_id,
-                    power_unit,
-                    position,
-                    name,
-                    supervisor,
-                    qualified,
-                    final_score,
-                    accuracy,
-                    ranking,
-                    validation,
-                    quarter
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, [
-                str(row["Month"]),
-                str(row["Vertical"]),
-                str(row["Employee ID"]),
-                str(row["Power Unit"]),
-                str(row["Position"]),
-                str(row["Name"]),
-                str(row["Supervisor"]),
-                str(row["Qualified? "]),
-                str(row["Final Score"]),
-                str(row["Accuracy"]),
-                str(row["Ranking"]),
-                str(row["Validation"]),
-                str(row["Quarter"])
-            ])
-
-            uploaded += 1
-
-        st.success(f"Uploaded {uploaded} rows to Turso!")
+    st.
