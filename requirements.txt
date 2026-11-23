@@ -1,3 +1,4 @@
 streamlit
 pandas
-libsql-client
+openpyxl
+libsql-client==0.3.1
