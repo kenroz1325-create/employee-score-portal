@@ -25,7 +25,7 @@ if uploaded_file:
     st.write(df.iloc[0])
 
     if st.button("Upload to Turso"):
-        st.success("Ready to upload"):
+        st.success("Ready to upload")
 
         uploaded = 0
 
